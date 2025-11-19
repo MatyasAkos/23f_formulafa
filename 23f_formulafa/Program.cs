@@ -239,7 +239,7 @@ namespace _23f_formulafa
 					if (gyerek.gyerekei.Count == 0)
 					{
 						következő = $"{labels.Count};\n";
-						labels.Add(gyerek.gyökér.Pop() + "\\n" + (ezazágkielégíthető ? "O" : "*"));
+						labels.Add(string.Join("\\n", gyerek.gyökér) + "\\n" + (ezazágkielégíthető ? "O" : "*"));
 					}
 					else
 					{
