@@ -239,14 +239,7 @@ namespace _23f_formulafa
 					if (gyerek.gyerekei.Count == 0)
 					{
 						következő = $"{labels.Count};\n";
-						if (ezazágkielégíthető)
-						{
-							labels.Add("O");
-						}
-						else 
-						{
-                            labels.Add("*");
-                        }
+						labels.Add(gyerek.gyökér.Pop() + "\\n" + (ezazágkielégíthető ? "O" : "*"));
 					}
 					else
 					{
@@ -305,12 +298,12 @@ namespace _23f_formulafa
 				if (teteje.Atomi())
 				{
 					// ha atomi formulával állunk szemben
-
-					if (literálok.Contains(-teteje)) // ha találunk ellentmondást, akkor vége a kisebb fákra való szétbontásnak.
+					
+					if (összes_literál.Contains(-teteje)) // ha találunk ellentmondást, akkor vége a kisebb fákra való szétbontásnak.
 					{
 						this.kielégíthető = false;
-					}
-					else 
+                    }
+					else if (formulahalmaz.Count != 0)
 					{
 						Stack<Formula> kov_formulahalmaz = new Stack<Formula>(formulahalmaz);
 						kov_formulahalmaz = new Stack<Formula>(kov_formulahalmaz);
@@ -318,6 +311,7 @@ namespace _23f_formulafa
 						this.gyerekei.Add(new Analitikus_fa(kov_formulahalmaz, továbbadott_literálok));
 						this.kielégíthető = this.gyerekei[0].kielégíthető;
 					}
+					else this.kielégíthető = this.ezazágkielégíthető;
 
 				}
 				else if (teteje.művelet=='¬')
@@ -328,21 +322,23 @@ namespace _23f_formulafa
 					if (gyerek.Atomi())
 					{
 						// ha tagadott atomi formulával állunk szemben: "-p"
-						if (literálok.Contains(gyerek))  // ezt most nem kell tagadni, mert teteje az, ami tagadott, tehát ha annak a gyereke ott van a literálhalmazban, akkor a teteje ellentmond neki!
+						if (összes_literál.Contains(gyerek))  // ezt most nem kell tagadni, mert teteje az, ami tagadott, tehát ha annak a gyereke ott van a literálhalmazban, akkor a teteje ellentmond neki!
 						{
 							this.kielégíthető = false;
 						}
-						else
+						else if (formulahalmaz.Count != 0)
 						{
 							Stack<Formula> kov_formulahalmaz = new Stack<Formula>(formulahalmaz);
-							továbbadott_literálok.Add(teteje); 
+							továbbadott_literálok.Add(teteje);
 							this.gyerekei.Add(new Analitikus_fa(kov_formulahalmaz, továbbadott_literálok));
 							this.kielégíthető = this.gyerekei[0].kielégíthető;
 						}
+						else this.kielégíthető = this.ezazágkielégíthető;
 					}
 					else if (gyerek.művelet == '¬')
 					{
 						// ha a tagadáson belül tagadás van: "--p" származékai
+
 						Formula unoka = gyerek.gyerekei[0];
 						Stack<Formula> kov_formulahalmaz = new Stack<Formula>(formulahalmaz);
 						kov_formulahalmaz.Push(unoka);
@@ -361,7 +357,7 @@ namespace _23f_formulafa
 						Stack<Formula> jobb_formulahalmaz = new Stack<Formula>(formulahalmaz);
 						jobb_formulahalmaz.Push(jobbunoka);
 
-						this.gyerekei.Add(new Analitikus_fa(bal_formulahalmaz, továbbadott_literálok));
+                        this.gyerekei.Add(new Analitikus_fa(bal_formulahalmaz, továbbadott_literálok));
 						this.gyerekei.Add(new Analitikus_fa(jobb_formulahalmaz, továbbadott_literálok));
 						this.kielégíthető = this.gyerekei[0].kielégíthető || this.gyerekei[1].kielégíthető;
 					}
@@ -395,7 +391,7 @@ namespace _23f_formulafa
 			Formula p_es_q = p * q;
 			Formula A = ((p * q) + -p) > q;
 
-			Console.WriteLine(A);
+			//Console.WriteLine(A);
 
 			Formula r = new Formula('r');
 			
@@ -416,13 +412,18 @@ namespace _23f_formulafa
 			//stck.Push(r);
 			stck.Push(A.NemÉs());
 			stck.Push(B.NemÉs());
-			//stck.Push(C.NemÉs());
+			stck.Push(C.NemÉs());
 			//stck.Push(D.NemÉs());
 			//stck.Push(E.NemÉs());
 			//stck.Push(F.NemÉs());
             Analitikus_fa fa = new Analitikus_fa(stck, new HashSet<Formula>());
 
+            //Console.WriteLine("digraph G {");
             Console.WriteLine(fa.ToString());
+            //Console.WriteLine("}");
+            //Console.ReadLine();
+
+            //Console.WriteLine(fa.kielégíthető);
 
         }
 	}
